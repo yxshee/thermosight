@@ -8,7 +8,7 @@
 <h3 align="center"> Vision Transformer for Thermal Image Classification </h3>
 
 <p align="center">
-  <img src="data/assets/thermosight-banner.png" alt="ThermoSight Banner" width="600"/>
+  <img src="data/assets/sonik" alt="ThermoSight Banner" width="50%"/>
 </p>
 
 ---
