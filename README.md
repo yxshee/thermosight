@@ -108,15 +108,6 @@ thermosight/
 
 ---
 
-## 🎨 Example Visualizations
-
-<p align="center">
-  <img src="data/assets/04.jpeg" width="355" height="355"  alt="Class Distribution"/>
-  <img src="data/assets/03.jpeg" width="355" height="355" alt="Confusion Matrix"/>
-</p>
-
----
-
 ## 📈 Results
 
 - **Accuracy**: 95%
@@ -127,6 +118,15 @@ thermosight/
 - **Sample Predictions**: Visualized in Jupyter Notebook
 
 ---
+
+<p align="center">
+  <img src="data/assets/04.jpeg" width="355" height="355"  alt="Class Distribution"/>
+  <img src="data/assets/03.jpeg" width="355" height="355" alt="Confusion Matrix"/>
+</p>
+
+---
+
+
 
 ## 📚 Documentation
 
