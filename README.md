@@ -122,6 +122,7 @@ thermosight/
 <p align="center">
   <img src="data/assets/04.jpeg" width="355" height="355"  alt="Class Distribution"/>
   <img src="data/assets/03.jpeg" width="355" height="355" alt="Confusion Matrix"/>
+  <img src="data/assets/01.jpeg" width="710"  alt="Result Graph"/>
 </p>
 
 ---
