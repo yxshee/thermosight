@@ -152,6 +152,7 @@ thermosight/
 <table>
   <tr align="center">
     <td><a href="https://github.com/yxshee"><img src="https://avatars.githubusercontent.com/yxshee" width="100px"><br/>Yash Dogra</a></td>
+     <td><a href="https://github.com/raghav-215"><img src="https://avatars.githubusercontent.com/raghav-215" width="100px"><br/>Raghav Sharma</a></td>
     <td><a href="https://github.com/DigvijaySidhu07"><img src="https://avatars.githubusercontent.com/DigvijaySidhu07" width="100px"><br/>Digvijay Sidhu</a></td>
     
   </tr>
