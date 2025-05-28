@@ -186,5 +186,5 @@ SOFTWARE.
 ```
 
 <div align="center">
-  Made with ❤️ by Yash Dogra | 🔥 Happy Classifying!
+  Made with ❤️ | 🔥 Happy Classifying!
 </div>
