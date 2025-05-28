@@ -103,8 +103,8 @@ python src/inference/predict.py path/to/image.jpg --model models/best_model.pth
 ## 🎨 Example Visualizations
 
 <p align="center">
-  <img src="data/assets/01.jpeg" width="49%" alt="Class Distribution"/>
-  <img src="data/assets/03.jpeg" width="49%" alt="Confusion Matrix"/>
+  <img src="data/assets/01.jpeg" width="355" height="355"  alt="Class Distribution"/>
+  <img src="data/assets/03.jpeg" width="355" height="355" alt="Confusion Matrix"/>
 </p>
 
 ---
