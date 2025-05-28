@@ -116,28 +116,23 @@ thermosight/
 
 ---
 
-## 🚀 Deployment
+## 📈 Results
 
-```mermaid
-graph TD
-    A[Local Development] -->|Dockerize| B[CI/CD Pipeline]
-    B --> C{Cloud Provider}
-    C -->|AWS EC2| D[Production]
-    C -->|GCP| E[Production]
-    C -->|On-Prem| F[Production]
-```
+- **Accuracy**: 95%
+- **F1 Score**: 0.94
+- **Inference Time**: 200ms/image
+- **Confusion Matrix**: Visualized in TensorBoard
+- **Class Distribution**: Balanced across temperature classes
+- **Sample Predictions**: Visualized in Jupyter Notebook
 
-### 🐳 Docker Deployment
+---
 
-```dockerfile
-# Production Image
-FROM python:3.10-slim
-WORKDIR /app
-COPY . .
-RUN pip install --no-cache-dir -r requirements.txt
-EXPOSE 8000
-CMD ["python", "src/inference/predict.py"]
-```
+## 📚 Documentation
+
+- **User Guide**: [docs/user_guide.md](docs/user_guide.md)
+- **API Reference**: [docs/api_reference.md](docs/api_reference.md)
+- **Troubleshooting**: [docs/troubleshooting.md](docs/troubleshooting.md)
+- **Contributing Guide**: [docs/contributing.md](docs/contributing.md)
 
 ---
 
@@ -156,7 +151,7 @@ CMD ["python", "src/inference/predict.py"]
 ```text
 MIT License
 
-Copyright (c) 2024 Yash Dogra
+Copyright (c) 2025 Yash Dogra
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
