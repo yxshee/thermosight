@@ -4,7 +4,8 @@
   <img src="https://img.shields.io/badge/Status-Active-brightgreen" alt="Status">
 </p>
 
-<h1 align="center">🔥 ThermoSight: Vision Transformer for Thermal Image Classification 🔥</h1>
+<h1 align="center">🔥 ThermoSight 🔥</h1>
+<h3 align="center"> Vision Transformer for Thermal Image Classification </h3>
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/placeholder/thermosight-banner.png" alt="ThermoSight Banner" width="600"/>
