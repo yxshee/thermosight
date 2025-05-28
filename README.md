@@ -187,5 +187,5 @@ SOFTWARE.
 ```
 
 <div align="center">
-  Made with ❤️ | 🔥 Happy Classifying!
+  Made with ❤️ | 🔥 Happy Classifying
 </div>
