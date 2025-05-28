@@ -29,19 +29,6 @@
 
 ---
 
-## 🖼️ Workflow
-
-```mermaid
-graph TD
-    A[Raw Images] --> B[Data Preparation]
-    B --> C[Train/Test Splits]
-    C --> D[Model Training (ViT)]
-    D --> E[Evaluation & Logging]
-    E --> F[Inference Demo]
-```
-
----
-
 ## 📂 Directory Structure
 
 ```
