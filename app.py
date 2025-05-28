@@ -22,7 +22,7 @@ st.set_page_config(
 # 2. App Header with Streamlit Components
 # ---------------------------------------------------------
 # Main title with emojis for visual appeal
-st.title("🏗️ Construction Materials Temperature Classifier 🔬")
+st.title("🏗️ Thermasight : Construction Materials Temperature Classifier 🔬")
 
 # Create a colored header with expander for information
 with st.container():

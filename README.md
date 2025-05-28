@@ -1,5 +1,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/PyTorch-2.0+-ee4c2c?logo=pytorch&logoColor=white" alt="PyTorch">
+  <img src="https://img.shields.io/badge/Streamlit-1.20+-FF4B4B?logo=streamlit&logoColor=white" alt="Streamlit">
   <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License">
   <img src="https://img.shields.io/badge/Status-Active-brightgreen" alt="Status">
 </p>
@@ -34,15 +35,14 @@ Traditionally, experts collect tiny pieces of concrete from different parts of t
 
 ## 🚀 Features
 
-### 🧠 Intelligent Classification
-
-| Feature | Description | Emoji |
-|---------|-------------|-------|
-| **ViT Backbone** | State-of-the-art Vision Transformer for image classification | 🤖 |
-| **Flexible Data Pipeline** | Raw-to-processed splits, easy EDA | 🔄 |
-| **TensorBoard Logging** | Metrics, confusion matrices, and more | 📊 |
-| **Easy Inference** | Predict on new images with a single command | ⚡ |
-| **Creative Visualizations** | EDA and results at your fingertips | 🎨 |
+| Feature                  | Description                                | Emoji |
+|--------------------------|--------------------------------------------|-------|
+| **ViT Backbone**         | State-of-the-art Vision Transformer        | 🤖    |
+| **Flexible Data Pipeline** | Raw-to-processed splits, easy EDA         | 🔄    |
+| **TensorBoard Logging**  | Metrics, confusion matrices, and more      | 📊    |
+| **Easy Inference**       | Predict on new images with a single command| ⚡    |
+| **Streamlit Web App**    | Interactive browser-based inference        | 🎉    |
+| **Creative Visualizations** | EDA and results at your fingertips       | 🎨    |
 
 ---
 
@@ -65,28 +65,25 @@ cd thermosight
 
 # Install dependencies
 pip install -r requirements.txt
-```
+pip install streamlit
 
-**Prepare Data**  
-Organize your raw images by class in `data/raw/`, then run:
-```bash
+# Prepare Data
 python src/data/make_dataset.py --input_dir data/raw --output_dir data/processed
-```
 
-**Train the Model**
-```bash
+# Train the Model
 python src/models/train.py --input_dir data/raw --output_dir data/processed
-```
 
-**Monitor Training**
-```bash
+# Monitor Training
 tensorboard --logdir outputs/logs
+
+# Run Inference via script
+python src/inference/predict.py path/to/image.jpg --model models/best_model.pth
+
+# Or launch the interactive Streamlit app
+streamlit run app.py
 ```
 
-**Run Inference**
-```bash
-python src/inference/predict.py path/to/image.jpg --model models/best_model.pth
-```
+**Note**: Ensure you have [Streamlit](https://streamlit.io/) installed to use the web app feature.
 
 ---
 
@@ -95,14 +92,14 @@ python src/inference/predict.py path/to/image.jpg --model models/best_model.pth
 ```
 thermosight/
 │
+├── app.py              # Streamlit web interface
 ├── data/
-│   ├── raw/         # Raw microscope images (by class)
-│   └── processed/   # Preprocessed train/test splits
-│
-├── models/          # Saved model checkpoints
-├── notebooks/       # Jupyter/VSCode notebooks (EDA, training, inference)
-├── src/             # Source code (data, models, utils, inference)
-├── outputs/         # Logs, TensorBoard runs
+│   ├── raw/            # Raw microscope images
+│   └── processed/      # Preprocessed train/test splits
+├── models/             # Saved model checkpoints
+├── notebooks/          # Jupyter/VSCode notebooks (EDA, training, inference)
+├── src/                # Source code (data, models, utils, inference)
+├── outputs/            # Logs, TensorBoard runs
 ├── requirements.txt
 └── README.md
 ```
