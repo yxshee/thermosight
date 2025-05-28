@@ -8,6 +8,22 @@
 
 <br>
 
+<p align="center">
+  <img src="https://img.shields.io/badge/PyTorch-2.0+-ee4c2c?logo=pytorch&logoColor=white" alt="PyTorch">
+  <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License">
+  <img src="https://img.shields.io/badge/Status-Active-brightgreen" alt="Status">
+</p>
+
+<h1 align="center">🔥 ThermoSight 🔥</h1>
+<h3 align="center"> Vision Transformer for Thermal Image Classification </h3>
+
+<p align="center">
+  <img src="data/assets/thermosight-banner.png" alt="ThermoSight Banner" width="600"/>
+</p>
+
+---
+
+
 <!-- Banner image (replace src with your banner if available) -->
 <p align="center">
   <img src="data/assets/banner.png" alt="ThermoSight Banner" width="600" height="300"/>
