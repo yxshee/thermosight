@@ -1,32 +1,82 @@
-<p align="center">
-  <img src="https://img.shields.io/badge/PyTorch-2.0+-ee4c2c?logo=pytorch&logoColor=white" alt="PyTorch">
+# 🔥 ThermoSight: See the Heat, Classify with Vision 🚀
+
+<div align="center">
   <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License">
+  <img src="https://img.shields.io/badge/PyTorch-2.0+-ee4c2c?logo=pytorch&logoColor=white" alt="PyTorch">
   <img src="https://img.shields.io/badge/Status-Active-brightgreen" alt="Status">
-</p>
+</div>
 
-<h1 align="center">🔥 ThermoSight 🔥</h1>
-<h3 align="center"> Vision Transformer for Thermal Image Classification </h3>
+<br>
 
+<!-- Banner image (replace src with your banner if available) -->
 <p align="center">
-  <img src="" alt="ThermoSight Banner" width="600" height="300"/>
+  <img src="data/assets/banner.png" alt="ThermoSight Banner" width="600" height="300"/>
 </p>
 
+## 🌟 Overview
+
+**ThermoSight** is your smart microscope companion for **thermal image classification**.  
+Built on a Vision Transformer (ViT) backbone, it streamlines the journey from raw thermal images to actionable temperature class predictions.
+
+> "Turning invisible heat into visible insights!" 🌡️
+
 ---
 
-## 🚀 Overview
+## 🚀 Features
 
-**ThermoSight** is a deep learning pipeline for classifying microscope thermal images into temperature classes using a Vision Transformer (ViT) architecture. The project includes data preprocessing, model training, evaluation, and inference, all with robust visualization and logging.
+### 🧠 Intelligent Classification
+
+| Feature | Description | Emoji |
+|---------|-------------|-------|
+| **ViT Backbone** | State-of-the-art Vision Transformer for image classification | 🤖 |
+| **Flexible Data Pipeline** | Raw-to-processed splits, easy EDA | 🔄 |
+| **TensorBoard Logging** | Metrics, confusion matrices, and more | 📊 |
+| **Easy Inference** | Predict on new images with a single command | ⚡ |
+| **Creative Visualizations** | EDA and results at your fingertips | 🎨 |
 
 ---
 
-## ✨ Features
+## 🛠️ Tech Stack
 
-- **Vision Transformer (ViT)** backbone for image classification
-- **Flexible data pipeline**: raw → processed splits
-- **TensorBoard logging** for metrics and confusion matrices
-- **Easy inference** on new images
-- **Modular codebase** for rapid experimentation
-- **Creative visualizations** for EDA and results
+![PyTorch](https://img.shields.io/badge/-PyTorch-ee4c2c?logo=pytorch&logoColor=white)
+![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white)
+![TensorBoard](https://img.shields.io/badge/-TensorBoard-FF6F00?logo=tensorboard&logoColor=white)
+![NumPy](https://img.shields.io/badge/-NumPy-013243?logo=numpy&logoColor=white)
+![Matplotlib](https://img.shields.io/badge/-Matplotlib-11557c?logo=matplotlib&logoColor=white)
+
+---
+
+## ⚡ Quick Start
+
+```bash
+# Clone the repo
+git clone https://github.com/yourusername/thermosight.git
+cd thermosight
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+**Prepare Data**  
+Organize your raw images by class in `data/raw/`, then run:
+```bash
+python src/data/make_dataset.py --input_dir data/raw --output_dir data/processed
+```
+
+**Train the Model**
+```bash
+python src/models/train.py --input_dir data/raw --output_dir data/processed
+```
+
+**Monitor Training**
+```bash
+tensorboard --logdir outputs/logs
+```
+
+**Run Inference**
+```bash
+python src/inference/predict.py path/to/image.jpg --model models/best_model.pth
+```
 
 ---
 
@@ -49,50 +99,7 @@ thermosight/
 
 ---
 
-## 🛠️ Installation
-
-```bash
-git clone https://github.com/yourusername/thermosight.git
-cd thermosight
-pip install -r requirements.txt
-```
-
----
-
-## 📊 Quickstart
-
-### 1. Prepare Data
-
-Organize your raw images by class in `data/raw/`.  
-Then run:
-
-```bash
-python src/data/make_dataset.py --input_dir data/raw --output_dir data/processed
-```
-
-### 2. Train the Model
-
-```bash
-python src/models/train.py --input_dir data/raw --output_dir data/processed
-```
-
-### 3. Monitor Training
-
-Launch TensorBoard:
-
-```bash
-tensorboard --logdir outputs/logs
-```
-
-### 4. Run Inference
-
-```bash
-python src/inference/predict.py path/to/image.jpg --model models/best_model.pth
-```
-
----
-
-## 📒 Notebooks
+## 🧪 Notebooks
 
 - **01_exploratory_data_analysis.ipynb**: Visualize class distributions and sample images.
 - **02_training_pipeline_experiment.ipynb**: Run and log training experiments.
@@ -109,22 +116,67 @@ python src/inference/predict.py path/to/image.jpg --model models/best_model.pth
 
 ---
 
-## 🤝 Credits
+## 🚀 Deployment
 
-- **Author:** [Yash Dogra](https://github.com/yashdogra)
-- **License:** MIT
+```mermaid
+graph TD
+    A[Local Development] -->|Dockerize| B[CI/CD Pipeline]
+    B --> C{Cloud Provider}
+    C -->|AWS EC2| D[Production]
+    C -->|GCP| E[Production]
+    C -->|On-Prem| F[Production]
+```
+
+### 🐳 Docker Deployment
+
+```dockerfile
+# Production Image
+FROM python:3.10-slim
+WORKDIR /app
+COPY . .
+RUN pip install --no-cache-dir -r requirements.txt
+EXPOSE 8000
+CMD ["python", "src/inference/predict.py"]
+```
 
 ---
 
-## 🌟 Contributing
+## 👥 Meet the Author
 
-Pull requests and issues are welcome!  
-Please open an issue to discuss your ideas or report bugs.
-
----
-
-## 📬 Contact
-
-For questions or collaborations, reach out via [GitHub Issues](https://github.com/yourusername/thermosight/issues).
+<table>
+  <tr align="center">
+    <td><a href="https://github.com/yashdogra"><img src="https://avatars.githubusercontent.com/yashdogra" width="100px"><br/>Yash Dogra</a></td>
+  </tr>
+</table>
 
 ---
+
+## 📜 License
+
+```text
+MIT License
+
+Copyright (c) 2024 Yash Dogra
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+<div align="center">
+  Made with ❤️ by Yash Dogra | 🔥 Happy Classifying!
+</div>
