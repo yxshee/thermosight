@@ -145,7 +145,7 @@ CMD ["python", "src/inference/predict.py"]
 
 <table>
   <tr align="center">
-    <td><a href="https://github.com/yashdogra"><img src="https://avatars.githubusercontent.com/yxshee" width="100px"><br/>Yash Dogra</a></td>
+    <td><a href="https://github.com/yxshee"><img src="https://avatars.githubusercontent.com/yxshee" width="100px"><br/>Yash Dogra</a></td>
   </tr>
 </table>
 
