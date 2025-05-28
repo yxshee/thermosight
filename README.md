@@ -22,6 +22,16 @@ Built on a Vision Transformer (ViT) backbone, it streamlines the journey from ra
 
 ---
 
+## 🏗️ Problem Statement
+
+When a building catches fire, the extreme heat can seriously damage the materials it’s made from—especially concrete and cement. These materials react differently at different temperatures, so the damage can vary throughout the building depending on how hot it got in each area.
+
+Traditionally, experts collect tiny pieces of concrete from different parts of the structure and take extremely detailed images of the damaged areas using powerful microscopes. By studying these samples and images, they estimate how much heat each part of the building was exposed to and decide whether the structure is safe, needs repairs, or should be demolished. However, this process is slow and labor-intensive.
+
+**ThermoSight** solves this by using AI to analyze high-resolution microscope images of fire-damaged concrete. Our model estimates the temperature each part of the material was exposed to, enabling rapid assessment of structural safety and guiding recovery actions—whether that means repairs or demolition. This approach speeds up post-fire recovery and safety checks, making the process faster and more efficient.
+
+---
+
 ## 🚀 Features
 
 ### 🧠 Intelligent Classification
@@ -126,15 +136,7 @@ thermosight/
 
 ---
 
-## 🏗️ Problem Statement
 
-When a building catches fire, the extreme heat can seriously damage the materials it’s made from—especially concrete and cement. These materials react differently at different temperatures, so the damage can vary throughout the building depending on how hot it got in each area.
-
-Traditionally, experts collect tiny pieces of concrete from different parts of the structure and take extremely detailed images of the damaged areas using powerful microscopes. By studying these samples and images, they estimate how much heat each part of the building was exposed to and decide whether the structure is safe, needs repairs, or should be demolished. However, this process is slow and labor-intensive.
-
-**ThermoSight** solves this by using AI to analyze high-resolution microscope images of fire-damaged concrete. Our model estimates the temperature each part of the material was exposed to, enabling rapid assessment of structural safety and guiding recovery actions—whether that means repairs or demolition. This approach speeds up post-fire recovery and safety checks, making the process faster and more efficient.
-
----
 
 ## 📚 Documentation
 
