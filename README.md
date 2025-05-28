@@ -1,4 +1,3 @@
-
 <p align="center">
   <img src="https://img.shields.io/badge/PyTorch-2.0+-ee4c2c?logo=pytorch&logoColor=white" alt="PyTorch">
   <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License">
@@ -9,17 +8,25 @@
 <h3 align="center"> Vision Transformer for Thermal Image Classification </h3>
 
 <p align="center">
-  <img src="data/assets/thermosight-banner.png" alt="ThermoSight Banner" width="600"/>
+  <img src="data/assets/thermosight-banner.png" alt="ThermoSight Banner" width="700"/>
 </p>
 
 ---
 
 ## 🌟 Overview
 
-**ThermoSight** is your smart microscope companion for **thermal image classification**.  
+<p align="center">
+  <img src="https://img.shields.io/badge/AI%20Powered-Yes-blue?style=flat-square&logo=python" alt="AI Powered">
+  <img src="https://img.shields.io/badge/🔥-Thermal%20Vision-orange?style=flat-square">
+  <img src="https://img.shields.io/badge/ViT-Transformer-yellow?style=flat-square">
+</p>
+
+**ThermoSight** is your smart microscope companion for **thermal image classification**.<br>
 Built on a Vision Transformer (ViT) backbone, it streamlines the journey from raw thermal images to actionable temperature class predictions.
 
-> "Turning invisible heat into visible insights!" 🌡️
+<blockquote>
+  <b>“Turning invisible heat into visible insights!”</b> <span style="font-size:1.2em;">🌡️</span>
+</blockquote>
 
 ---
 
@@ -27,54 +34,60 @@ Built on a Vision Transformer (ViT) backbone, it streamlines the journey from ra
 
 ### 🧠 Intelligent Classification
 
-| Feature | Description | Emoji |
-|---------|-------------|-------|
-| **ViT Backbone** | State-of-the-art Vision Transformer for image classification | 🤖 |
-| **Flexible Data Pipeline** | Raw-to-processed splits, easy EDA | 🔄 |
-| **TensorBoard Logging** | Metrics, confusion matrices, and more | 📊 |
-| **Easy Inference** | Predict on new images with a single command | ⚡ |
-| **Creative Visualizations** | EDA and results at your fingertips | 🎨 |
+| 🤖 Feature             | Description                                      | Emoji |
+|-----------------------|--------------------------------------------------|-------|
+| **ViT Backbone**      | State-of-the-art Vision Transformer for images   | 🧬    |
+| **Flexible Pipeline** | Raw-to-processed splits, easy EDA                | 🔄    |
+| **TensorBoard Logs**  | Metrics, confusion matrices, and more            | 📊    |
+| **Easy Inference**    | Predict on new images with a single command      | ⚡    |
+| **Visualizations**    | EDA and results at your fingertips               | 🎨    |
 
 ---
 
 ## 🛠️ Tech Stack
 
-![PyTorch](https://img.shields.io/badge/-PyTorch-ee4c2c?logo=pytorch&logoColor=white)
-![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white)
-![TensorBoard](https://img.shields.io/badge/-TensorBoard-FF6F00?logo=tensorboard&logoColor=white)
-![NumPy](https://img.shields.io/badge/-NumPy-013243?logo=numpy&logoColor=white)
-![Matplotlib](https://img.shields.io/badge/-Matplotlib-11557c?logo=matplotlib&logoColor=white)
+<p align="center">
+  <img src="https://img.shields.io/badge/-PyTorch-ee4c2c?logo=pytorch&logoColor=white" height="24">
+  <img src="https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white" height="24">
+  <img src="https://img.shields.io/badge/-TensorBoard-FF6F00?logo=tensorboard&logoColor=white" height="24">
+  <img src="https://img.shields.io/badge/-NumPy-013243?logo=numpy&logoColor=white" height="24">
+  <img src="https://img.shields.io/badge/-Matplotlib-11557c?logo=matplotlib&logoColor=white" height="24">
+</p>
 
 ---
 
 ## ⚡ Quick Start
 
+<div align="center">
+  <img src="https://img.icons8.com/color/48/000000/rocket--v2.png" width="40"/>
+</div>
+
 ```bash
-# Clone the repo
+# 🚀 Clone the repo
 git clone https://github.com/yourusername/thermosight.git
 cd thermosight
 
-# Install dependencies
+# 📦 Install dependencies
 pip install -r requirements.txt
 ```
 
-**Prepare Data**  
+**🗂️ Prepare Data**  
 Organize your raw images by class in `data/raw/`, then run:
 ```bash
 python src/data/make_dataset.py --input_dir data/raw --output_dir data/processed
 ```
 
-**Train the Model**
+**🏋️ Train the Model**
 ```bash
 python src/models/train.py --input_dir data/raw --output_dir data/processed
 ```
 
-**Monitor Training**
+**📈 Monitor Training**
 ```bash
 tensorboard --logdir outputs/logs
 ```
 
-**Run Inference**
+**🔮 Run Inference**
 ```bash
 python src/inference/predict.py path/to/image.jpg --model models/best_model.pth
 ```
@@ -82,6 +95,9 @@ python src/inference/predict.py path/to/image.jpg --model models/best_model.pth
 ---
 
 ## 📂 Directory Structure
+
+<details>
+<summary>Click to expand</summary>
 
 ```
 thermosight/
@@ -97,25 +113,30 @@ thermosight/
 ├── requirements.txt
 └── README.md
 ```
+</details>
 
 ---
 
 ## 🧪 Notebooks
 
-- **01_exploratory_data_analysis.ipynb**: Visualize class distributions and sample images.
-- **02_training_pipeline_experiment.ipynb**: Run and log training experiments.
-- **03_inference_demo.ipynb**: Predict and visualize results on new images.
+- <img src="https://img.icons8.com/fluency/24/000000/graph.png"/> **01_exploratory_data_analysis.ipynb**: Visualize class distributions and sample images.
+- <img src="https://img.icons8.com/fluency/24/000000/experimental.png"/> **02_training_pipeline_experiment.ipynb**: Run and log training experiments.
+- <img src="https://img.icons8.com/fluency/24/000000/ai.png"/> **03_inference_demo.ipynb**: Predict and visualize results on new images.
 
 ---
 
 ## 📈 Results
 
-- **Accuracy**: 95%
-- **F1 Score**: 0.94
-- **Inference Time**: 200ms/image
-- **Confusion Matrix**: Visualized in TensorBoard
-- **Class Distribution**: Balanced across temperature classes
-- **Sample Predictions**: Visualized in Jupyter Notebook
+<div align="center">
+  <img src="https://img.icons8.com/color/48/000000/ok--v2.png" width="32"/>
+  <b>Accuracy:</b> <span style="color:green">95%</span> &nbsp; | &nbsp;
+  <b>F1 Score:</b> <span style="color:green">0.94</span> &nbsp; | &nbsp;
+  <b>Inference Time:</b> <span style="color:blue">200ms/image</span>
+</div>
+
+- **Confusion Matrix:** Visualized in TensorBoard
+- **Class Distribution:** Balanced across temperature classes
+- **Sample Predictions:** Visualized in Jupyter Notebook
 
 ---
 
@@ -127,14 +148,12 @@ thermosight/
 
 ---
 
-
-
 ## 📚 Documentation
 
-- **User Guide**: [docs/user_guide.md](docs/user_guide.md)
-- **API Reference**: [docs/api_reference.md](docs/api_reference.md)
-- **Troubleshooting**: [docs/troubleshooting.md](docs/troubleshooting.md)
-- **Contributing Guide**: [docs/contributing.md](docs/contributing.md)
+- <img src="https://img.icons8.com/ios-filled/20/000000/book.png"/> **User Guide**: [docs/user_guide.md](docs/user_guide.md)
+- <img src="https://img.icons8.com/ios-filled/20/000000/api.png"/> **API Reference**: [docs/api_reference.md](docs/api_reference.md)
+- <img src="https://img.icons8.com/ios-filled/20/000000/help.png"/> **Troubleshooting**: [docs/troubleshooting.md](docs/troubleshooting.md)
+- <img src="https://img.icons8.com/ios-filled/20/000000/git.png"/> **Contributing Guide**: [docs/contributing.md](docs/contributing.md)
 
 ---
 
@@ -142,9 +161,12 @@ thermosight/
 
 <table>
   <tr align="center">
-    <td><a href="https://github.com/yxshee"><img src="https://avatars.githubusercontent.com/yxshee" width="100px"><br/>Yash Dogra</a></td>
-    <td><a href="https://github.com/yxshee"><img src="https://avatars.githubusercontent.com/yxshee" width="100px"><br/>Yash Dogra</a></td>
-    
+    <td>
+      <a href="https://github.com/yxshee">
+        <img src="https://avatars.githubusercontent.com/yxshee" width="100px"><br/>
+        <b>Yash Dogra</b>
+      </a>
+    </td>
   </tr>
 </table>
 
@@ -177,5 +199,6 @@ SOFTWARE.
 ```
 
 <div align="center">
-  Made with ❤️ by Yash Dogra | 🔥 Happy Classifying!
+  <img src="https://img.icons8.com/color/48/000000/like--v2.png" width="32"/>
+  <b>Made with ❤️ by Yash Dogra | 🔥 Happy Classifying!</b>
 </div>
