@@ -4,353 +4,298 @@ import torch.nn as nn
 from torchvision import transforms
 from PIL import Image
 import os
-import numpy as np
+import io  # Added for checkpoint loading
 import time
+from typing import List
 
-# ---------------------------------------------------------
-# 1. Page Configuration and Theme
-# ---------------------------------------------------------
-# Set page config for a wide layout and custom title/icon
+
+# =========================================================
+# 1. Page configuration & global constants
+# =========================================================
+
 st.set_page_config(
     page_title="Construction Material Temperature Classifier",
     page_icon="🏗️",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
 )
 
-# ---------------------------------------------------------
-# 2. App Header with Streamlit Components
-# ---------------------------------------------------------
-# Main title with emojis for visual appeal
-st.title("🏗️ ThermoSight : Construction Materials Temperature Classifier 🔬")
+# Temperature classes & palette (colour‑blind‑friendly)
+TEMP_CLASSES: List[str] = ["200", "400", "600", "800"]
+TEMP_COLOURS: List[str] = ["#1f77b4", "#2ca02c", "#ff7f0e", "#d62728"]  # blue/green/orange/red
 
-# Create a colored header with expander for information
+# Vision‑Transformer hyper‑parameters
+IMG_SIZE = 460  # Input resolution fed to ViT
+PATCH_SIZE = 8
+EMBED_DIM = 768
+ENC_LAYERS = 12
+HEADS = 12
+NUM_CLASSES = len(TEMP_CLASSES)
+
+# =========================================================
+# 2. Header & about section
+# =========================================================
+
+st.title("🏗️ ThermoSight : Construction Materials Temperature Classifier 🔬")
 with st.container():
     st.markdown("### Advanced thermal response analysis for civil engineering materials")
-    
-    # Use expander for additional information
-    with st.expander("ℹ️ About this application"):
-        st.write("""
-        This application uses deep learning to classify construction materials based on their thermal signatures.
-        Upload an image taken at a specific temperature to determine the material class.
-        
-        The classifier can identify materials tested at five different temperature ranges:
-        - 27°C (room temperature)
-        - 200°C (low thermal exposure)
-        - 400°C (medium thermal exposure)
-        - 600°C (high thermal exposure)
-        - 800°C (extreme thermal exposure)
-        """)
+    with st.expander("ℹ️ About this application"):
+        st.write(
+            """
+            **ThermoSight** uses a Vision Transformer (ViT) to classify construction materials by
+            the temperature at which they were imaged.
 
-# ---------------------------------------------------------
-# 3. Model Architecture (unchanged)
-# ---------------------------------------------------------
+            Supported temperature classes:
+            • **200 °C** – Low thermal exposure  
+            • **400 °C** – Medium thermal exposure  
+            • **600 °C** – High thermal exposure  
+            • **800 °C** – Extreme thermal exposure
+            """
+        )
+
+# =========================================================
+# 3. Vision Transformer definition
+# =========================================================
+
 class PatchEmbedding(nn.Module):
-    def __init__(self, embed_dim, patch_size, num_patches, dropout, in_channels):
+    def __init__(self, embed_dim: int, patch_size: int, num_patches: int, dropout: float, in_channels: int):
         super().__init__()
         self.patcher = nn.Sequential(
-            nn.Conv2d(in_channels=in_channels, out_channels=embed_dim, kernel_size=patch_size, stride=patch_size),
-            nn.Flatten(2)
+            nn.Conv2d(in_channels, embed_dim, kernel_size=patch_size, stride=patch_size),
+            nn.Flatten(2),
         )
-        self.cls_token = nn.Parameter(torch.randn(size=(1, 1, embed_dim)), requires_grad=True)
-        self.positional_embeddings = nn.Parameter(torch.randn(size=(1, num_patches + 1, embed_dim)), requires_grad=True)
-        self.dropout = nn.Dropout(p=dropout)
+        self.cls_token = nn.Parameter(torch.randn(1, 1, embed_dim))
+        self.positional_embeddings = nn.Parameter(torch.randn(1, num_patches + 1, embed_dim))
+        self.dropout = nn.Dropout(dropout)
 
-    def forward(self, x):
-        cls_token = self.cls_token.expand(x.shape[0], -1, -1)
-        x = self.patcher(x).permute(0, 2, 1)
-        x = torch.cat([cls_token, x], dim=1)
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        B = x.size(0)
+        cls_tokens = self.cls_token.expand(B, -1, -1)
+        x = self.patcher(x).permute(0, 2, 1)  # (B, N, C)
+        x = torch.cat([cls_tokens, x], dim=1)  # prepend CLS
+        x = x + self.positional_embeddings[:, : x.size(1), :]
+        return self.dropout(x)
 
-        n_tokens = x.size(1)
-        n_orig = self.positional_embeddings.size(1)
-        if n_tokens != n_orig:
-            cls_pos = self.positional_embeddings[:, :1, :]
-            spatial_pos = self.positional_embeddings[:, 1:, :]
-            gs_old = int(math.sqrt(spatial_pos.size(1)))
-            gs_new = int(math.sqrt(n_tokens - 1))
-            spatial_pos = spatial_pos.transpose(1, 2).view(1, -1, gs_old, gs_old)
-            new_sp = F.interpolate(spatial_pos, size=(gs_new, gs_new), mode='bilinear', align_corners=False)
-            new_sp = new_sp.flatten(2).transpose(1, 2)
-            pos_emb = torch.cat((cls_pos, new_sp), dim=1)
-        else:
-            pos_emb = self.positional_embeddings
-
-        x = x + pos_emb
-        x = self.dropout(x)
-        return x
 
 class ViT(nn.Module):
-    def __init__(self, num_patches, img_size, num_classes, patch_size, embed_dim, num_encoders, num_heads, dropout, activation, in_channels):
+    def __init__(
+        self,
+        img_size: int = IMG_SIZE,
+        patch_size: int = PATCH_SIZE,
+        embed_dim: int = EMBED_DIM,
+        enc_layers: int = ENC_LAYERS,
+        n_heads: int = HEADS,
+        num_classes: int = NUM_CLASSES,
+        dropout: float = 0.0,
+        in_channels: int = 3,
+    ):
         super().__init__()
-        self.embeddings_block = PatchEmbedding(embed_dim, patch_size, num_patches, dropout, in_channels)
+        n_patches = (img_size // patch_size) ** 2
+        self.embed = PatchEmbedding(embed_dim, patch_size, n_patches, dropout, in_channels)
         encoder_layer = nn.TransformerEncoderLayer(
             d_model=embed_dim,
-            nhead=num_heads,
-            dim_feedforward=4*embed_dim,
+            nhead=n_heads,
+            dim_feedforward=4 * embed_dim,
             dropout=dropout,
-            activation=activation,
+            activation="gelu",
             batch_first=True,
-            norm_first=True
+            norm_first=True,
         )
-        self.encoder_blocks = nn.TransformerEncoder(encoder_layer, num_layers=num_encoders)
+        self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=enc_layers)
         self.mlp_head = nn.Sequential(
-            nn.LayerNorm(normalized_shape=embed_dim),
-            nn.Linear(in_features=embed_dim, out_features=num_classes)
+            nn.LayerNorm(embed_dim),
+            nn.Linear(embed_dim, num_classes),
         )
 
-    def forward(self, x):
-        x = self.embeddings_block(x)
-        x = self.encoder_blocks(x)
-        x = self.mlp_head(x[:, 0, :])
-        return x
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.embed(x)
+        x = self.transformer(x)
+        return self.mlp_head(x[:, 0])  # CLS token
 
+# =========================================================
+# 4. Sidebar – Controls & inputs
+# =========================================================
 
-# ---------------------------------------------------------
-# 4. Sidebar - Using Native Streamlit Components
-# ---------------------------------------------------------
-# Create a visually appealing sidebar with emoji headers
-st.sidebar.title("📊 Analysis Control Panel")
+st.sidebar.header("📊 Analysis Control Panel")
 
-# Add a separator
+# --- Checkpoint selection (upload *or* path) ---
+checkpoint_source = st.sidebar.radio(
+    "Choose model source",
+    options=["Upload .pth file", "Local path"],
+    horizontal=True,
+)
+
+ckpt_buffer = None
+ckpt_path = None
+
+if checkpoint_source == "Upload .pth file":
+    ckpt_file = st.sidebar.file_uploader("Upload ViT checkpoint", type=["pth"])
+    if ckpt_file is not None:
+        ckpt_buffer = ckpt_file.read()  # bytes
+        st.sidebar.success("Checkpoint uploaded ✅")
+else:
+    temp_path = st.sidebar.text_input("Enter absolute path to checkpoint", value="/path/to/model.pth")
+    if temp_path and not os.path.exists(temp_path):
+        st.sidebar.error("Checkpoint path not found ⚠️")
+    else:
+        ckpt_path = temp_path if temp_path else None
+
+# --- Image upload ---
 st.sidebar.divider()
+st.sidebar.subheader("📸 Material Image")
+image_file = st.sidebar.file_uploader("Upload material image", type=["jpg", "jpeg", "png", "bmp"])
+if image_file is None:
+    st.sidebar.info("Upload an image to enable analysis.")
 
-# Model selection section with native components
-st.sidebar.subheader("🧠 Model Configuration")
-model_file = st.sidebar.file_uploader("Upload Model Checkpoint (.pth)", type=["pth"])
-
-if not model_file:
-    st.sidebar.info("Upload the trained model checkpoint to enable material classification.")
-
-# Temperature classes with Streamlit's color display
+# --- Temperature legend ---
 st.sidebar.divider()
-st.sidebar.subheader("🌡️ Temperature Classes")
-
-# Your known classes
-classes = ['200', '400', '600', '800']
-
-# Create a visual legend with native components
-# Define temperature colors
-colors = ['#2962FF', '#00C853', '#FFAB00', '#FF6D00', '#D50000']
-
-# Create a temperature legend using columns
-legend_cols = st.sidebar.columns(len(classes))
-for i, (col, cls, color) in enumerate(zip(legend_cols, classes, colors)):
+st.sidebar.subheader("🌡️ Temperature Legend")
+legend_cols = st.sidebar.columns(len(TEMP_CLASSES))
+for col, t, c in zip(legend_cols, TEMP_CLASSES, TEMP_COLOURS):
     with col:
-        st.color_picker(f"{cls}°C", color, disabled=True, key=f"color_{cls}")
-        st.write(f"{cls}°C")
+        st.color_picker(f"{t}°C", c, disabled=True, key=f"legend_{t}")
+        st.caption(f"{t}°C")
 
-st.sidebar.caption("These temperatures represent the thermal conditions at which construction materials were tested.")
-
-# Add another separator
+# --- Run button ---
 st.sidebar.divider()
+run = st.sidebar.button("🔬 Analyze Material", type="primary")
 
-# Image upload section
-st.sidebar.subheader("📸 Material Image")
-uploaded_image = st.sidebar.file_uploader("Upload material image for analysis", type=["jpg", "jpeg", "png","bmp"])
+# =========================================================
+# 5. Pre‑processing utilities & model cache
+# =========================================================
 
-if not uploaded_image:
-    st.sidebar.info("Upload an image of construction material for thermal classification.")
+@st.cache_resource(show_spinner=False)
+def get_transform(img_size: int = IMG_SIZE):
+    return transforms.Compose(
+        [
+            transforms.Resize(int(img_size * 256 / 224)),
+            transforms.CenterCrop(img_size),
+            transforms.Lambda(lambda im: im.convert("RGBA").convert("RGB") if im.mode in ("P", "RGBA") else im.convert("RGB")),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ]
+    )
 
-# Define test-time transforms
-input_size = 128
-test_transform = transforms.Compose([
-    transforms.Resize(input_size + 10),
-    transforms.CenterCrop(input_size),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                         std=[0.229, 0.224, 0.225])
-])
 
-# ---------------------------------------------------------
-# 5. Enhanced Inference & Display with Streamlit Components
-# ---------------------------------------------------------
-# Use large, visually appealing button
-run_col1, run_col2 = st.sidebar.columns([1, 3])
-with run_col2:
-    run_button = st.button("🔬 Analyze Material", type="primary", use_container_width=True)
+def _load_state_dict(buf_or_path, device):
+    """Load state dict from bytes or file path."""
+    if isinstance(buf_or_path, (bytes, bytearray, memoryview)):
+        return torch.load(io.BytesIO(buf_or_path), map_location=device)
+    return torch.load(buf_or_path, map_location=device)
 
-# Create 2 columns for the main content
+
+@st.cache_resource(show_spinner=False)
+def load_model(buf_or_path, device):
+    model = ViT().to(device)
+    raw_state = _load_state_dict(buf_or_path, device)
+    state = raw_state.get("state_dict", raw_state)  # handle lightning checkpoints etc.
+    # lightning adds "_orig_mod." prefix when using `torch.compile`; strip it
+    cleaned_state = {k.replace("_orig_mod.", ""): v for k, v in state.items()}
+    model.load_state_dict(cleaned_state, strict=False)
+    model.eval()
+    return model
+
+# =========================================================
+# 6. Main workflow
+# =========================================================
+
 main_col1, main_col2 = st.columns([3, 2])
 
-if run_button:
-    if model_file is None:
-        st.sidebar.error("⚠️ Please upload a model checkpoint file.")
-    elif uploaded_image is None:
-        st.sidebar.error("⚠️ Please upload a material image for analysis.")
-    else:
-        # Show progress with native spinner and progress bar
-        with st.status("Analyzing construction material...", expanded=True) as status:
-            # Create a progress bar
-            progress_bar = st.progress(0)
-            
-            # Step 1: Load model
-            progress_bar.progress(10)
-            st.write("🔍 Loading model architecture...")
-            time.sleep(0.3)
-            
-            # Device selection
-            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-            
-            # Initialize model for 5 classes
-            model = ViT(num_patches=16, img_size=input_size, num_classes=len(classes), patch_size=4, embed_dim=128, num_encoders=4, num_heads=4, dropout=0.1, activation='relu', in_channels=3).to(device)
-            
-            # Step 2: Load weights
-            progress_bar.progress(30)
-            st.write("⚙️ Loading model parameters...")
-            time.sleep(0.3)
-            
-            # Save the uploaded model to a temporary file and load it
-            temp_model_path = "temp_model.pth"
-            with open(temp_model_path, "wb") as f:
-                f.write(model_file.getbuffer())
-            checkpoint = torch.load(temp_model_path, map_location=device)
-            model.load_state_dict(checkpoint)
-            model.eval()
-            os.remove(temp_model_path)
-            
-            # Step 3: Process image
-            progress_bar.progress(60)
-            st.write("🖼️ Processing material image...")
-            time.sleep(0.3)
-            
-            # Preprocess the uploaded image
-            image = Image.open(uploaded_image).convert("RGB")
-            input_tensor = test_transform(image).unsqueeze(0).to(device)
-            
-            # Step 4: Run inference
-            progress_bar.progress(80)
-            st.write("🧮 Running material analysis...")
-            time.sleep(0.3)
-            
-            # Perform inference
-            with torch.no_grad():
-                outputs = model(input_tensor)
-                probabilities = torch.nn.functional.softmax(outputs, dim=1)[0]
-                _, predicted = torch.max(outputs, 1)
-                predicted_class = classes[predicted.item()]
-                confidence = probabilities[predicted].item() * 100
-                
-            # Complete progress
-            progress_bar.progress(100)
-            time.sleep(0.2)
-            status.update(label="Analysis complete!", state="complete")
+if run:
+    if (ckpt_buffer is None and ckpt_path is None) or image_file is None:
+        st.sidebar.error("Please provide **both** a valid checkpoint and an image before running.")
+        st.stop()
 
-        # Display results using Streamlit cards and columns
-        with main_col1:
-            # Image display with colored border based on temperature
-            color_idx = classes.index(predicted_class)
-            temperature_color = colors[color_idx]
-            
-            # Apply a colored border to match the temperature
-            st.image(image, caption=f"Construction Material Sample", use_column_width=True)
-        
-        with main_col2:
-            # Create a success message with large text
-            st.success(f"Material Temperature Class: {predicted_class}°C")
-            
-            # Show confidence with a metric and matching color
-            st.metric("Analysis Confidence", f"{confidence:.1f}%")
-            
-            # Add material description based on temperature
-            descriptions = {
-                '200': "Low thermal exposure (200°C): Shows early-stage thermal effects.",
-                '27': "Room temperature (27°C): No thermal exposure effects visible.",
-                '400': "Medium thermal exposure (400°C): Moderate thermal degradation visible.",
-                '600': "High thermal exposure (600°C): Significant thermal damage present.",
-                '800': "Extreme thermal exposure (800°C): Severe thermal degradation and structural changes."
-            }
-            
-            st.info(descriptions[predicted_class])
-                
-        # Display temperature class distribution below
-        st.divider()
-        st.subheader("Temperature Class Distribution")
-        
-        # Create a horizontal bar chart for probabilities
-        probs_dict = {f"{cls}°C": probabilities[i].item() * 100 for i, cls in enumerate(classes)}
-        
-        # Convert to proper format for Streamlit chart
-        chart_data = []
-        for cls, prob in probs_dict.items():
-            chart_data.append({"Temperature": cls, "Probability (%)": prob})
-        
-        # Use Streamlit's native bar chart
-        st.bar_chart(
-            chart_data, 
-            x="Temperature", 
-            y="Probability (%)", 
-            color="Temperature"
-        )
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# ---------------------------------------------------------
-# 6. Add Help Section when nothing is running
-# ---------------------------------------------------------
-if not run_button or (model_file is None or uploaded_image is None):
-    # Display help information in the main panel with Streamlit components
+    # --- Animated phase placeholders ---
+    phase_box = st.empty()
+    prog_bar = st.sidebar.progress(0, text="Preparing…")
+
+    # Phase 1 – load model --------------------------------------------------
+    phase_box.write("**Phase 1/3 – Loading model**")
+    prog_bar.progress(20)
+    ckpt_source = ckpt_buffer if ckpt_buffer is not None else ckpt_path
+    model = load_model(ckpt_source, device)
+    prog_bar.progress(40)
+
+    # Phase 2 – preprocess image -------------------------------------------
+    phase_box.write("**Phase 2/3 – Pre‑processing image**")
+    img = Image.open(image_file)
+    x = get_transform()(img).unsqueeze(0).to(device)
+    prog_bar.progress(60)
+
+    # Phase 3 – inference ---------------------------------------------------
+    phase_box.write("**Phase 3/3 – Running inference**")
+    with torch.no_grad():
+        logits = model(x)
+        probs = torch.softmax(logits, dim=1)[0]
+    prog_bar.progress(100)
+    time.sleep(0.3)
+    prog_bar.empty()
+    phase_box.empty()
+
+    # -------------------------------------------------- Display results
+    pred_idx = torch.argmax(probs).item()
+    pred_temp = TEMP_CLASSES[pred_idx]
+    confidence = probs[pred_idx].item() * 100
+
     with main_col1:
-        st.header("🔍 How It Works")
-        
-        # Use streamlit tabs for better organization
-        tab1, tab2 = st.tabs(["Instructions", "Applications"])
-        
-        with tab1:
-            # Numbered instructions with emojis
-            st.write("### Step-by-Step Guide:")
-            st.write("1️⃣ Upload a trained model checkpoint (.pth file) in the sidebar")
-            st.write("2️⃣ Upload an image of construction material to analyze")
-            st.write("3️⃣ Click 'Analyze Material' to identify the temperature class")
-            
-            # Add example material images
-            st.write("### Temperature Classifications:")
-            temp_cols = st.columns(5)
-            with temp_cols[0]:
-                st.write("**27°C**")
-                st.caption("Room temperature")
-            with temp_cols[1]:
-                st.write("**200°C**")
-                st.caption("Low exposure")
-            with temp_cols[2]:
-                st.write("**400°C**")
-                st.caption("Medium exposure")
-            with temp_cols[3]:
-                st.write("**600°C**")
-                st.caption("High exposure")
-            with temp_cols[4]:
-                st.write("**800°C**")
-                st.caption("Extreme exposure")
-    
-        with tab2:
-            # Create applications list with emojis using columns
-            st.write("### Civil Engineering Applications:")
-            
-            app_col1, app_col2 = st.columns(2)
-            
-            with app_col1:
-                st.success("🏢 Structural safety assessment")
-                st.success("🔥 Post-fire material analysis")
-                st.success("✅ Quality control in construction")
-            
-            with app_col2:
-                st.success("🔬 Research in material science")
-                st.success("🎓 Civil engineering education")
-                st.success("🛡️ Disaster assessment and recovery")
+        st.image(img, caption="Construction Material Sample", use_column_width=True)
 
     with main_col2:
-        # Add a model demonstration figure or animation
-        st.header("📊 Material Analysis")
-        
-        # Create sample data visualization
-        st.write("### How the CNN works")
-        st.info("""
-        The Construction Materials Classifier uses a Deep Convolutional Neural Network (CNN) with:
-        
-        - 4 convolutional blocks with increasing filter sizes
-        - Batch normalization for stable training
-        - Dropout layers to prevent overfitting
-        - Adaptive pooling to handle various image sizes
-        """)
-        
-        # Use st.balloons() for a fun effect when the user first visits
-        if 'first_visit' not in st.session_state:
+        st.success(f"**Predicted Temperature : {pred_temp} °C**")
+        st.metric("Confidence", f"{confidence:.1f}%")
+        desc = {
+            "200": "Low thermal exposure (200 °C) – early‑stage thermal effects.",
+            "400": "Medium exposure (400 °C) – moderate thermal degradation.",
+            "600": "High exposure (600 °C) – significant thermal damage.",
+            "800": "Extreme exposure (800 °C) – severe degradation/phase change.",
+        }
+        st.info(desc[pred_temp])
+
+    # Bar‑chart of class probabilities -------------------------------------
+    st.divider()
+    st.subheader("Temperature Class Probability Distribution")
+    chart_data = {
+        "Temperature": [f"{t} °C" for t in TEMP_CLASSES],
+        "Probability (%)": [probs[i].item() * 100 for i in range(NUM_CLASSES)],
+    }
+    st.bar_chart(chart_data, x="Temperature", y="Probability (%)")
+
+else:
+    # ----------------------------- Help / Instructions (collapsed by default)
+    with main_col1:
+        st.header("🔍 How It Works")
+        tab1, tab2 = st.tabs(["Instructions", "Applications"])
+        with tab1:
+            st.write("### Step‑by‑Step Guide:")
+            st.write("1️⃣ Provide a ViT checkpoint (upload or local path).")
+            st.write("2️⃣ Upload a construction material image.")
+            st.write("3️⃣ Click **Analyze Material** to obtain the predicted temperature class.")
+        with tab2:
+            st.write("### Example Applications:")
+            col_l, col_r = st.columns(2)
+            with col_l:
+                st.success("🏢 Post‑fire structural assessment")
+                st.success("✅ On‑site quality control")
+                st.success("🔬 Material‑science research")
+            with col_r:
+                st.success("🎓 Educational demonstrations")
+                st.success("🛡️ Disaster recovery planning")
+
+    with main_col2:
+        st.header("📊 Model Details")
+        st.info(
+            "Vision Transformer with 12‑layer encoder, 768‑d embeddings, "
+            "and 8×8 patching on 460×460 images."
+        )
+        st.write(
+            "The model leverages multi‑head self‑attention to capture both local and global "
+            "features of thermal patterns, enabling robust classification across diverse "
+            "construction materials."
+        )
+
+        if "first_visit" not in st.session_state:
             st.session_state.first_visit = True
             st.balloons()
