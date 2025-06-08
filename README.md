@@ -144,7 +144,7 @@ thermosight/
 
 ---
 
-## 👥 Meet the Author
+## 👥 Meet the Authors
 
 <table>
   <tr align="center">
