@@ -57,7 +57,7 @@ data/raw/
 data/processed/
 
 # Models and outputs
-models/
+/models/
 outputs/
 
 # MacOS
