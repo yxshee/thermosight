@@ -132,7 +132,6 @@ thermosight/
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/6719b228-3a75-4551-9a12-d3aad25677db" width="100%"  alt="Class Distribution"/>
-  <img src="data/assets/03.jpeg" width="100%" alt="Confusion Matrix"/>
   <img src="data/assets/01.jpeg" width="100%"  alt="Result Graph"/>
 </p>
 
