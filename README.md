@@ -1,3 +1,8 @@
+
+
+
+
+
 <p align="center">
   <img src="https://img.shields.io/badge/PyTorch-2.0+-ee4c2c?logo=pytorch&logoColor=white" alt="PyTorch">
   <img src="https://img.shields.io/badge/Streamlit-1.20+-FF4B4B?logo=streamlit&logoColor=white" alt="Streamlit">
@@ -126,9 +131,9 @@ thermosight/
 ---
 
 <p align="center">
-  <img src="data/assets/04.jpeg" width="355" height="355"  alt="Class Distribution"/>
-  <img src="data/assets/03.jpeg" width="355" height="355" alt="Confusion Matrix"/>
-  <img src="data/assets/01.jpeg" width="710"  alt="Result Graph"/>
+  <img src="https://github.com/user-attachments/assets/6719b228-3a75-4551-9a12-d3aad25677db"  height="355"  alt="Class Distribution"/>
+  <img src="data/assets/03.jpeg" height="355" alt="Confusion Matrix"/>
+  <img src="data/assets/01.jpeg" width="100%"  alt="Result Graph"/>
 </p>
 
 ---
